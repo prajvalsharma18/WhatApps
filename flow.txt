@@ -1,3 +1,9 @@
 mongo connected
 
-then redis upstash for 
+then redis upstash for otp caching 
+
+nodemailer for otp
+
+so basically otp ham nodemailer se mail send karenge 
+par wo message jo display karenge 
+wo we will do by a message broker namely RabbitMQ
