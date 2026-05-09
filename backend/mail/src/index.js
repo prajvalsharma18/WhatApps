@@ -1,11 +1,14 @@
 const express = require('express');
+const {startSendOtpConsumer} = require('./consumer');
 
 require('dotenv').config();
 
 const app = express();
 
+startSendOtpConsumer();
+
 const PORT = process.env.PORT;
 
 app.listen(PORT , () =>{
-    console.log(`Mail server is running!!!`);
+    console.log(`server is running on port!!!`);
 });
