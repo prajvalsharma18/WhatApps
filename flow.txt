@@ -7,3 +7,45 @@ nodemailer for otp
 so basically otp ham nodemailer se mail send karenge 
 par wo message jo display karenge 
 wo we will do by a message broker namely RabbitMQ
+
+added ratelimiterof 1 otp/min
+
+redis for storing ratelimit for otp that is for 60 seconds + storing otp in redis for 5 minutes 
+
+now for sending otp message with otp we are not dependent on controller for our work 
+
+we use mail service message as recieved by our message Broker RABBITMQ from one microservice to another 
+
+without actually calling the functions from each other
+
+POST /login
+    ↓
+router → loginUser
+    ↓
+TryCatch wrapper (error handling)
+    ↓
+Redis rate limit check
+    ↓
+OTP generate → Redis mein store
+    ↓
+publishToQueue("send-otp", message)
+    ↓
+Mail Service email bhejta hai
+
+
+User Service                    Mail Service
+(user.controller.js)            (consumer.js)
+        |                               |
+        |                               |
+  OTP generate karo                     |
+  Redis mein store karo                 |
+  publishToQueue() ------→  RabbitMQ  --→  channel.consume()
+                            "send-otp"       email bhejo
+        |                                       |
+  res.json("OTP sent")              nodemailer se mail
+
+
+  Redis — OTP 5 min + rate limit 60 sec store karta hai
+Decoupling — User Service aur Mail Service ek doosre ko directly call nahi karte, RabbitMQ beech mein hai
+Microservices — dono services independently kaam karti hain, ek band ho toh doosri chalta rehta hai
+RabbitMQ ka fayda — agar Mail Service momentarily down ho, message queue mein safe pada rahega aur jab service wapas aayegi toh process ho jaega — message lost nahi hoga
