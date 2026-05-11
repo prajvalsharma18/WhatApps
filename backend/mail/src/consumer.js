@@ -38,16 +38,22 @@ const startSendOtpConsumer = async () => {
                         to,
                         subject,
                         html: `
-                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                                <h2 style="color: #333; text-align: center;">Your OTP Code</h2>
-                                <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                                    <h1 style="color: #4CAF50; font-size: 40px; letter-spacing: 10px; margin: 0;">${body}</h1>
-                                </div>
-                                <p style="color: #666; text-align: center;">This OTP is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
-                                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                                <p style="color: #aaa; font-size: 12px; text-align: center;">If you didn't request this, please ignore this email.</p>
-                            </div>
-                        `
+                    <div style="font-family: 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #ffffff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+        
+                   <h2 style="color: #111; font-size: 22px; margin: 0 0 8px 0;">Verify your email</h2>
+                    <p style="color: #666; font-size: 14px; margin: 0 0 28px 0;">Use the OTP below to complete your login.</p>
+
+                   <div style="background: #f5f5f5; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 28px;">
+                   <span style="font-size: 36px; font-weight: 700; letter-spacing: 12px; color: #111;">${body}</span>
+                   </div>
+
+                   <p style="color: #888; font-size: 13px; margin: 0;">This OTP expires in <strong>5 minutes</strong>. Do not share it with anyone.</p>
+
+                  <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+                  <p style="color: #bbb; font-size: 12px; margin: 0;">If you didn't request this, you can safely ignore this email.</p>
+
+                 </div>
+                    `
                     });
 
                     console.log(`OTP email sent to ${to}`);

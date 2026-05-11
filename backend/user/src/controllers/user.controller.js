@@ -1,9 +1,10 @@
+const User = require("../model/user.model");
 const TryCatch = require("../utils/TryCatch");
 const redisClient = require("../config/redis");
 const generateToken = require("../utils/generateToken");
 const {publishToQueue} = require("../config/rabbitmq");
 
-
+// logining my user
 const loginUser = TryCatch(async (req , res) =>{
     const {email} = req.body;
 
@@ -42,6 +43,8 @@ const loginUser = TryCatch(async (req , res) =>{
     })
 });
 
+
+//verifying via otp and token in req.body
 const verifyUser = TryCatch(async (req , res) =>{
        
     const {email , otp : enteredOtp} = req.body;
@@ -66,7 +69,7 @@ const verifyUser = TryCatch(async (req , res) =>{
      
      await redisClient.del(otpKey);
 
-     let user = await User.find({email});
+     let user = await User.findOne({email});
 
      if(!user){
 
@@ -75,10 +78,65 @@ const verifyUser = TryCatch(async (req , res) =>{
         user = await User.create({name , email});
      }
 
-     const token = generateToken(user);
+     const token = generateToken(user._id); 
+
+     res.json({
+        message : "User verified successfully.",
+        user,
+        token
+     })
+});
+
+
+// generating my profile while using middleware for authentication and authorization in routes
+const myProfile = TryCatch(async(req , res) =>{
+    const user = await User.findById(req.user.userId);
+    res.json({user});
+});
+
+
+//updating my name while using middleware for authentication and authorization in routes
+const updateName = TryCatch(async(req , res) =>{
+    const user = await User.findById(req.user?.userId);
+
+    if(!user){
+        res.status(404).json({
+            message: "Please Login."
+        })
+        return;
+    }
+
+    user.name = req.body.name || user.name;
+
+    await user.save();
+
+    const token = generateToken(user._id);
+
+    res.json({
+        message : "Name updated successfully.",
+        user,
+        token
+    });
+});
+
+
+//getting all users
+const getAllUsers = TryCatch(async(req , res) =>{
+    const users = await User.find();
+    res.json({users});
+});
+
+//getting a user
+const getAUser = TryCatch(async(req , res) =>{
+    const user = await User.findById(req.params.id);
+    res.json({user});
 });
 
 module.exports = {
     loginUser,
-    verifyUser
+    verifyUser,
+    myProfile,
+    updateName,
+    getAllUsers,
+    getAUser
 };
