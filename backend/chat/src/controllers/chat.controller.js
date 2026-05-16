@@ -1,8 +1,10 @@
 const TryCatch = require('../utils/TryCatch');
 const Chat = require('../models/chat.model');
+const Message = require('../models/message.model');
+const axios = require('axios');
 
 const createNewChat = TryCatch(async (req , res) =>{
-    const userId = req.user?._id;
+    const userId = req.user?.userId;
     const {otherUserId} = req.body;
 
     if(!otherUserId){
@@ -36,6 +38,236 @@ const createNewChat = TryCatch(async (req , res) =>{
     })
 });
 
+const getAllChats = TryCatch(async (req , res) => {
+    const userId = req.user?.userId;
+
+    if(!userId){
+         res.status(400).json({
+            message : "UserId missing",
+         });
+         return;
+    }
+
+    const chats = await Chat.find({
+        users : userId
+    }).sort({updatedAt : -1});
+
+    const chatWithUserData = await Promise.all(
+        chats.map(async(chat) =>{
+            const otherUserId =  chat.users.find((id) => id.toString() !== userId.toString());
+            
+            const unseenCount = await Message.countDocuments({
+                chatId : chat._id,
+                sender:{ $ne : userId},
+                seen : false
+            });
+
+            try{
+               const {data} = await axios.get(`${process.env.USER_SERVICE}/api/v1/user/${otherUserId}`);
+
+               return{
+                 user : data,
+                 chat:{
+                    ...chat.toObject() ,
+                    latestMessage : chat.latestMessage || null,
+                    unseenCount,
+                 }
+               }
+            }
+            catch(err){
+                console.error("Error fetching user data for chat list" , err);
+
+                 return{
+                    user : {_id : otherUserId , name : "Unknown User"},
+                 chat:{
+                    ...chat.toObject() ,
+                    latestMessage : chat.latestMessage || null,
+                    unseenCount,
+                 }
+               }
+            }
+            }
+        )
+    ); 
+
+    res.json({
+        chats : chatWithUserData,
+    })
+});
+
+const sendMessage = TryCatch(async (req,res) =>{
+    const userId = req.user?.userId;
+    const {chatId , text} = req.body;
+    const imageFile = req.file;
+
+    if(!userId){
+        res.status(401).json({
+            message : "unauthorized"
+        });
+        return;
+    }
+
+    if(!chatId){
+        res.status(400).json({
+            message : "ChatId Required",
+        });
+        return;
+    }
+
+    if(!text && !imageFile){
+       res.status(400).json({
+          message : "Either text or image is required",
+       });
+       return;
+    }
+
+    const chat = await Chat.findById(chatId);
+
+    if(!chat){
+        res.status(404).json({
+            message : "Chat not found"
+        });
+        return;
+    }
+
+    const isUserInChat = chat.users.some(
+        (id) => id.toString() === userId.toString()
+    );
+
+    if(!isUserInChat){
+        res.status(403).json({
+            message : "You are not a memeber of this chat"
+        });
+        return;
+    }
+
+    const otherUserId = chat.users.find(
+        (id) => id.toString() !== userId.toString()
+    );
+
+    if(!otherUserId){
+        res.status(401).json({
+            message : "No Other user"
+        });
+        return;
+    }
+
+    //SOCKET BASED OPENING PART
+
+    let messageData = {
+        chatId : chatId,
+        sender : userId,
+        seen : false,
+        seenAt : undefined,
+    };
+
+    if(imageFile){
+        messageData.image = {
+            url : imageFile.path,
+            publicId : imageFile.filename,
+        }
+        messageData.messageType = "image";
+        messageData.text = text || "";
+    }
+    else{
+        messageData.text = text;
+        messageData.messageType = "text"
+    }
+
+    const message = new Message(messageData);
+
+    const SavedMessage = await message.save();
+
+    const latestMessage = imageFile ? "IMAGE FILE!!!": text;
+
+    await Chat.findByIdAndUpdate(chatId,{
+        latestMessage:{
+            text : latestMessage,
+            sender : userId
+        },
+        updatedAt : new Date(),
+    } , {new : true}
+);
+
+    //emit to the sockets
+
+    res.status(201).json({
+        message : SavedMessage,
+        sender : userId
+    })
+});
+
+const getMessagesByChat = TryCatch(async (req, res) => {
+    const userId = req.user?.userId;
+    const { chatId } = req.params;
+
+    if (!userId) {
+        res.status(401).json({ message: 'unauthorized' });
+        return;
+    }
+
+    if (!chatId) {
+        res.status(400).json({ message: 'ChatId Required' });
+        return;
+    }
+
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+        res.status(404).json({ message: 'Chat not found' });
+        return;
+    }
+
+    const isUserInChat = chat.users.some(
+        (id) => id.toString() === userId.toString()
+    );
+
+    if (!isUserInChat) {
+        res.status(403).json({ message: 'You are not a member of this chat' });
+        return;
+    }
+
+    const otherUserId = chat.users.find(
+        (id) => id.toString() !== userId.toString()
+    );
+
+    if (!otherUserId) {
+        res.status(400).json({ message: 'No Other User' });
+        return;
+    }
+
+    await Message.updateMany({
+        chatId,
+        sender: { $ne: userId },
+        seen: false
+    }, {
+        seen: true,
+        seenAt: new Date(),
+    });
+
+    const messages = await Message.find({ chatId }).sort({ createdAt: 1 });
+
+    try {
+        const { data } = await axios.get(`${process.env.USER_SERVICE}/api/v1/user/${otherUserId}`);
+
+        //socket work
+
+        res.json({
+            messages,
+            user: data,
+        });
+    } catch (err) {
+        console.log(err);
+        res.json({
+            messages,
+            user: { _id: otherUserId, name: 'Unknown User' },
+        });
+    }
+});
+
 module.exports = {
-    createNewChat
+    createNewChat,
+    getAllChats,
+    sendMessage,
+    getMessagesByChat
 }

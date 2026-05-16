@@ -49,3 +49,5 @@ User Service                    Mail Service
 Decoupling — User Service aur Mail Service ek doosre ko directly call nahi karte, RabbitMQ beech mein hai
 Microservices — dono services independently kaam karti hain, ek band ho toh doosri chalta rehta hai
 RabbitMQ ka fayda — agar Mail Service momentarily down ho, message queue mein safe pada rahega aur jab service wapas aayegi toh process ho jaega — message lost nahi hoga
+
+cloudinary for images here as compared to S3 
