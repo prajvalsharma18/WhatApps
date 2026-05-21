@@ -41,7 +41,7 @@ const startSendOtpConsumer = async () => {
                     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10);">
     
                    <!-- Header -->
-                 <div style="background: #2563eb; padding: 36px 32px; text-align: center;">
+                 <div style="background: #859ed3; padding: 36px 32px; text-align: center;">
                  <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 12px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
                  <span style="font-size: 28px;">💬</span>
                </div>
@@ -55,8 +55,8 @@ const startSendOtpConsumer = async () => {
 
         <!-- OTP Box -->
         <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 12px; padding: 28px; text-align: center; margin-bottom: 32px;">
-            <p style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">Your OTP Code</p>
-            <span style="font-size: 42px; font-weight: 800; letter-spacing: 16px; color: #2563eb;">${body}</span>
+            <p style="color: #6b7280; font-size: 8px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">Your OTP Code</p>
+            <span style="font-size: 18px; font-weight: 800; letter-spacing: 16px; color: #cde15a;">${body}</span>
         </div>
 
         <div style="background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 12px 16px; margin-bottom: 24px;">
