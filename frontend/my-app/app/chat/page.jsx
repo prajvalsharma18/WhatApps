@@ -11,6 +11,8 @@ import axios from "axios";
 import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
 import MessageInput from "@/components/MessageInput";
+import { SocketData } from "@/context/SocketContext";
+
 
 const ChatApp = () => {
   const {
@@ -23,6 +25,10 @@ const ChatApp = () => {
     fetchChats,
     setChats,
   } = useAppData();
+
+  const {onlineUsers} = SocketData();
+
+  console.log(onlineUsers);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState("");

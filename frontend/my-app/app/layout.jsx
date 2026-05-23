@@ -1,5 +1,7 @@
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
+import { SocketProvider } from "@/context/SocketContext";
+
 
 export const metadata = {
   title: "WhatApps",
@@ -11,7 +13,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AppProvider>
-            {children}
+          <SocketProvider>
+             {children}
+          </SocketProvider>
         </AppProvider>
       </body>
     </html>
