@@ -117,9 +117,14 @@ const VerifyOtp = () => {
 
       setUser(data.user);
       setIsAuth(true);
+      localStorage.setItem("isAuth", "true");
 
       fetchChats();
       fetchUsers();
+
+      setTimeout(() => {
+        router.push("/chat");
+      }, 100);
     } catch (error) {
       setError(
         error?.response?.data?.message || "Something went wrong"
@@ -154,8 +159,6 @@ const VerifyOtp = () => {
   };
 
   if (userLoading) return <Loading />;
-
-  if (isAuth) redirect("/chat");
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">

@@ -37,10 +37,14 @@ export const AppProvider = ({ children }) => {
         }
       );
 
-      setUser(data);
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data));
       setIsAuth(true);
+      localStorage.setItem("isAuth", "true");
     } catch (error) {
       console.log(error);
+      localStorage.removeItem("isAuth");
+      localStorage.removeItem("user");
     } finally {
       setLoading(false);
     }
@@ -48,6 +52,8 @@ export const AppProvider = ({ children }) => {
 
   async function logoutUser() {
     Cookies.remove("token");
+    localStorage.removeItem("isAuth");
+    localStorage.removeItem("user");
 
     setUser(null);
     setIsAuth(false);
@@ -87,13 +93,27 @@ export const AppProvider = ({ children }) => {
         }
       );
 
-      setUsers(data);
+      setUsers(data.users);
     } catch (error) {
       console.log(error);
     }
   }
 
   useEffect(() => {
+    const savedAuthState = localStorage.getItem("isAuth");
+    if (savedAuthState === "true") {
+      setIsAuth(true);
+    }
+
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.log("Failed to parse saved user data");
+      }
+    }
+
     fetchUser();
     fetchChats();
     fetchUsers();

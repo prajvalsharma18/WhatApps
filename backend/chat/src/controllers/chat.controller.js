@@ -38,61 +38,73 @@ const createNewChat = TryCatch(async (req , res) =>{
     })
 });
 
-const getAllChats = TryCatch(async (req , res) => {
+const getAllChats = TryCatch(async (req, res) => {
     const userId = req.user?.userId;
 
-    if(!userId){
-         res.status(400).json({
-            message : "UserId missing",
-         });
-         return;
+    if (!userId) {
+        res.status(400).json({
+            message: "UserId missing",
+        });
+        return;
     }
 
     const chats = await Chat.find({
-        users : userId
-    }).sort({updatedAt : -1});
+        users: userId
+    }).sort({ updatedAt: -1 });
 
     const chatWithUserData = await Promise.all(
-        chats.map(async(chat) =>{
-            const otherUserId =  chat.users.find((id) => id.toString() !== userId.toString());
-            
+        chats.map(async (chat) => {
+
+            const otherUserId = chat.users.find(
+                (id) => id.toString() !== userId.toString()
+            );
+
             const unseenCount = await Message.countDocuments({
-                chatId : chat._id,
-                sender:{ $ne : userId},
-                seen : false
+                chatId: chat._id,
+                sender: { $ne: userId },
+                seen: false
             });
 
-            try{
-               const {data} = await axios.get(`${process.env.USER_SERVICE}/api/v1/user/${otherUserId}`);
+            try {
 
-               return{
-                 user : data,
-                 chat:{
-                    ...chat.toObject() ,
-                    latestMessage : chat.latestMessage || null,
-                    unseenCount,
-                 }
-               }
-            }
-            catch(err){
-                console.error("Error fetching user data for chat list" , err);
+                const { data } = await axios.get(
+                    `${process.env.USER_SERVICE}/api/v1/user/${otherUserId}`
+                );
 
-                 return{
-                    user : {_id : otherUserId , name : "Unknown User"},
-                 chat:{
-                    ...chat.toObject() ,
-                    latestMessage : chat.latestMessage || null,
-                    unseenCount,
-                 }
-               }
+                return {
+                    user: data.user,
+                    chat: {
+                        ...chat.toObject(),
+                        latestMessage: chat.latestMessage || null,
+                        unseenCount,
+                    }
+                };
+
+            } catch (err) {
+
+                console.error(
+                    "Error fetching user data for chat list",
+                    err
+                );
+
+                return {
+                    user: {
+                        _id: otherUserId,
+                        name: "Unknown User"
+                    },
+                    chat: {
+                        ...chat.toObject(),
+                        latestMessage: chat.latestMessage || null,
+                        unseenCount,
+                    }
+                };
             }
-            }
-        )
-    ); 
+        })
+    );
 
     res.json({
-        chats : chatWithUserData,
-    })
+        chats: chatWithUserData,
+    });
 });
 
 const sendMessage = TryCatch(async (req,res) =>{
@@ -164,7 +176,7 @@ const sendMessage = TryCatch(async (req,res) =>{
     if(imageFile){
         messageData.image = {
             url : imageFile.path,
-            publicId : imageFile.filename,
+            publicId : imageFile.filename || imageFile.public_id,
         }
         messageData.messageType = "image";
         messageData.text = text || "";
