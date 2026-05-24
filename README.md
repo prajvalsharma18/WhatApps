@@ -1,2 +1,2 @@
-
-frontend - sockets based APIs working as tested using POSTMAN
+Eveything Working fine on  =======> 
+http://whatapps.online/login
