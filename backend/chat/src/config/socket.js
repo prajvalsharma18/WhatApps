@@ -14,6 +14,10 @@ const io = new Server(server , {
 
 const userSocketMap = {};
 
+const getRecieverSocketId = (recieverId) => {
+      return userSocketMap[recieverId];
+};
+
 io.on("connection",(socket) =>{
 
       console.log("User Connected",socket.id);
@@ -27,21 +31,50 @@ io.on("connection",(socket) =>{
 
       io.emit("getOnlineUser" , Object.keys(userSocketMap));
 
-      socket.on("disconnect" , () =>{
-        console.log("User Disconnected" , socket.id);
+      if(userId){
+         socket.join(userId);
+      }
 
-        if(userId){
-            delete userSocketMap[userId];
-
-            console.log(`User ${userId} removed from online users`);
-
-            io.emit("getOnlineUser",Object.keys(userSocketMap));
-        }
+      socket.on("typing" , (data) => {
+        console.log(`User ${data.userId} is typing in chat ${data.chatId}`);
+        socket.to(data.chatId).emit("userTyping" , {
+          chatId : data.chatId,
+          userId : data.userId
+        })
       });
 
-      socket.on("connect_error" , (error) => {
-         console.log("Socket connected Error" , error)
+      socket.on("stopTyping" , (data) =>{
+        console.log(`User ${data.userId} stopped typing in chat ${data.chatId}`);
+        socket.to(data.chatId).emit("userStoppedTyping" , {
+          chatId : data.chatId,
+          userId : data.userId
+        });
       })
-});
 
-module.exports = { app, server,io };
+   socket.on("joinChat", (chatId) => {
+    socket.join(chatId);
+    console.log(`User ${userId} joined chat room ${chatId}`);
+  });
+
+  socket.on("leaveChat", (chatId) => {
+    socket.leave(chatId);
+    console.log(`User ${userId} left chat room ${chatId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+
+    if (userId) {
+      delete userSocketMap[userId];
+      console.log(`User ${userId} removed from online users`);
+      io.emit("getOnlineUser", Object.keys(userSocketMap));
+    }
+   });
+
+  socket.on("connect_error", (error) => {
+    console.log("Socket connection Error", error);
+  });
+ });
+
+
+module.exports = { app, server, io , getRecieverSocketId };

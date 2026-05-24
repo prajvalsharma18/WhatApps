@@ -121,7 +121,7 @@ const ChatSidebar = ({
                         </div>
 
                         <div className="text-xs text-gray-400">
-                          {onlineUsers.includes(u._id)
+                              {onlineUsers.includes(u._id)
                             ? "Online"
                             : "Offline"}
                         </div>
@@ -161,7 +161,7 @@ const ChatSidebar = ({
                 >
                   <div className="flex items-start gap-3">
                     {/* avatar */}
-                    <div className="relative flex-shrink-0">
+                    <div className="relative shrink-0">
                       <UserCircle className="w-10 h-10 text-gray-300" />
 
                       {onlineUsers.includes(chat.user._id) && (
