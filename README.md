@@ -1,4 +1,3 @@
-Eveything Working fine on  =======>  http://13.219.245.149:3000/
 
 Scalable Real-Time Chat Application with Microservices & OTP System | MERN, RabbitMQ, Socket.IO
 
