@@ -1,5 +1,5 @@
 
-Scalable Real-Time Chat Application with Microservices & OTP System | MERN, RabbitMQ, Socket.IO
+Scalable Real-Time Chat Application with Microservices & OTP System | RabbitMQ, Socket.IO
 
 •	Built a production-ready chat application using MERN stack with microservices architecture (User, Mail, Chat services) for better scalability, and implemented OTP-based login using Redis Upstash for OTP storage and rate limiting (1 OTP/min) to prevent spam and ensure secure authentication.
 
