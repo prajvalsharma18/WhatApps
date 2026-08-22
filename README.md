@@ -7,5 +7,3 @@ Scalable Real-Time Chat Application with Microservices & OTP System | RabbitMQ, 
 
 •	Added core chat features like image sharing using Cloudinary for file upload and storage, along with chat functionalities like messaging and user interactions, and deployed it completely on AWS EC2 for production making it fully production-ready.
 
-WORKING ON ====>  http://32.197.186.166:3000/login
-
