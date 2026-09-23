@@ -1,3 +1,5 @@
+http://98.92.203.163:3000/chat
+
 
 Scalable Real-Time Chat Application with Microservices & OTP System | RabbitMQ, Socket.IO
 
