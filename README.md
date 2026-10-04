@@ -42,7 +42,7 @@ WhatApps follows a service-oriented backend architecture with three independent 
 * Microservice-based backend
 * AWS EC2 deployment
 
-<img width="1917" height="812" alt="Screenshot 2026-10-04 132222" src="https://github.com/user-attachments/assets/692b3145-3754-4003-b87c-665d7af7bc21" />
+<img width="1926" height="817" alt="aws" src="https://github.com/user-attachments/assets/cb4b5db8-0fb2-47ba-abca-c2b3be522aa7" />
 
 
 # Backend Architecture
